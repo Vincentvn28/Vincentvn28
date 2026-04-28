@@ -27,11 +27,11 @@
 > Sync Claude Code sessions (chat history + memory + plans) across machines via Google Drive — encrypted with AES-256, 1-click push/pull.
 
 <p>
-  <a href="https://marketplace.visualstudio.com/items?itemName=Claudesessionsync.claude-session-sync">
-    <img alt="VS Code Marketplace" src="https://img.shields.io/visual-studio-marketplace/v/Claudesessionsync.claude-session-sync?label=VS%20Code&logo=visualstudiocode&color=007ACC">
+  <a href="https://marketplace.visualstudio.com/items?itemName=Vincentvn28.claude-session-sync">
+    <img alt="VS Code Marketplace" src="https://img.shields.io/visual-studio-marketplace/v/Vincentvn28.claude-session-sync?label=VS%20Code&logo=visualstudiocode&color=007ACC">
   </a>
-  <a href="https://open-vsx.org/extension/Claudesessionsync/claude-session-sync">
-    <img alt="Open VSX" src="https://img.shields.io/open-vsx/v/Claudesessionsync/claude-session-sync?label=Open%20VSX&logo=eclipseide&color=A5A5A5">
+  <a href="https://open-vsx.org/extension/Vincentvn28/claude-session-sync">
+    <img alt="Open VSX" src="https://img.shields.io/open-vsx/v/Vincentvn28/claude-session-sync?label=Open%20VSX&logo=eclipseide&color=A5A5A5">
   </a>
   <a href="https://github.com/Vincentvn28/claude-session-sync/blob/main/LICENSE">
     <img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue">
@@ -40,7 +40,7 @@
 
 **Why?** Switching between desktop ↔ laptop and losing your Claude Code chat history is painful. This fixes it. Encrypts client-side, works with paths that differ between machines (e.g. `D:\Project` ↔ `C:\dev\Project`).
 
-[**Install on VS Code**](https://marketplace.visualstudio.com/items?itemName=Claudesessionsync.claude-session-sync) · [**Install on Antigravity / Cursor / Windsurf**](https://open-vsx.org/extension/Claudesessionsync/claude-session-sync) · [**Source**](https://github.com/Vincentvn28/claude-session-sync)
+[**Install on VS Code**](https://marketplace.visualstudio.com/items?itemName=Vincentvn28.claude-session-sync) · [**Install on Antigravity / Cursor / Windsurf**](https://open-vsx.org/extension/Vincentvn28/claude-session-sync) · [**Source**](https://github.com/Vincentvn28/claude-session-sync)
 
 ---
 
