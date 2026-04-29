@@ -24,7 +24,7 @@
 
 #### [claude-session-sync](https://github.com/Vincentvn28/claude-session-sync)
 
-> Sync Claude Code sessions (chat history + memory + plans) across machines via Google Drive — encrypted with AES-256, 1-click push/pull.
+> Sync Claude Code sessions (chat history + memory + plans) across machines via Google Drive — 1-click push/pull, plus local `.zip` backup/import for offline workflows.
 
 <p>
   <a href="https://marketplace.visualstudio.com/items?itemName=Vincentvn28.claude-session-sync">
@@ -38,7 +38,7 @@
   </a>
 </p>
 
-**Why?** Switching between desktop ↔ laptop and losing your Claude Code chat history is painful. This fixes it. Encrypts client-side, works with paths that differ between machines (e.g. `D:\Project` ↔ `C:\dev\Project`).
+**Why?** Switching between desktop ↔ laptop and losing your Claude Code chat history is painful. This fixes it. Auto-rewrites paths that differ between machines (e.g. `D:\Project` ↔ `C:\dev\Project`), and supports local-file backup if you'd rather skip Drive entirely.
 
 [**Install on VS Code**](https://marketplace.visualstudio.com/items?itemName=Vincentvn28.claude-session-sync) · [**Install on Antigravity / Cursor / Windsurf**](https://open-vsx.org/extension/Vincentvn28/claude-session-sync) · [**Source**](https://github.com/Vincentvn28/claude-session-sync)
 
