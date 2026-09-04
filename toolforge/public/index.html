@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolForge</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --border: #e2e5ea;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --ok: #15803d;
+    --warn: #b45309;
+    --bad: #b91c1c;
+    --idle: #6b7280;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #262b35;
+      --text: #e6e8ec;
+      --muted: #9aa1ad;
+      --accent: #60a5fa;
+      --ok: #4ade80;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --idle: #9aa1ad;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--panel);
+    position: sticky; top: 0; z-index: 5;
+  }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: -.01em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+  .spacer { flex: 1; }
+  main { padding: 20px; max-width: 1400px; margin: 0 auto; display: grid; gap: 20px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .stat .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .stat .value { font-size: 22px; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+  @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+  section > h2 {
+    margin: 0; padding: 12px 14px; font-size: 13px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  th, td { padding: 8px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .ok { color: var(--ok); } .ok .dot, .bg-ok { background: var(--ok); }
+  .warn { color: var(--warn); } .warn .dot, .bg-warn { background: var(--warn); }
+  .bad { color: var(--bad); } .bad .dot, .bg-bad { background: var(--bad); }
+  .idle { color: var(--idle); } .idle .dot, .bg-idle { background: var(--idle); }
+  .run { color: var(--accent); } .run .dot, .bg-run { background: var(--accent); }
+  .meter { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; min-width: 90px; }
+  .meter > i { display: block; height: 100%; background: var(--accent); transition: width .3s ease; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  button {
+    font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { opacity: .9; color: #fff; }
+  input, select { font: inherit; font-size: 13px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
+  .feed { max-height: 460px; overflow-y: auto; padding: 6px 0; }
+  .feed div { padding: 4px 14px; font-size: 12px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
+  .feed time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .feed b { font-weight: 600; }
+  .empty { padding: 20px 14px; color: var(--muted); }
+  details > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; border-bottom: 1px solid var(--border); }
+  details[open] > summary { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .team { padding: 0 0 8px; }
+  .team h3 { margin: 10px 14px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .gate { max-width: 420px; margin: 80px auto; text-align: center; display: grid; gap: 12px; }
+  .hint { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="gate" class="gate" hidden>
+  <h1>ToolForge</h1>
+  <p class="hint">Paste the hub's admin token. Print it with <code>toolforge hub token</code>.</p>
+  <input id="token-input" type="password" placeholder="tfk_…" autocomplete="off">
+  <button class="primary" id="token-save">Connect</button>
+  <p class="hint" id="gate-error" style="color: var(--bad)"></p>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <h1>ToolForge <span id="conn">connecting…</span></h1>
+    <div class="spacer"></div>
+    <span class="hint" id="clock"></span>
+    <button id="logout">Forget token</button>
+  </header>
+
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="grid">
+      <div style="display: grid; gap: 20px;">
+        <section>
+          <h2>Machines</h2>
+          <div class="scroll"><table id="machines"></table></div>
+        </section>
+        <section>
+          <h2>Tools</h2>
+          <div id="tools"></div>
+        </section>
+      </div>
+
+      <section>
+        <h2>Live activity</h2>
+        <div class="feed" id="feed"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const STORAGE_KEY = 'toolforge.token';
+const state = { token: null, tools: [], open: new Set() };
+
+function readToken() {
+  try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
+}
+function writeToken(value) {
+  try { value ? localStorage.setItem(STORAGE_KEY, value) : localStorage.removeItem(STORAGE_KEY); } catch { /* private mode */ }
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    ...options,
+    headers: { authorization: 'Bearer ' + state.token, 'content-type': 'application/json', ...(options.headers || {}) },
+  });
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw Object.assign(new Error(detail?.error?.message || response.statusText), { status: response.status });
+  }
+  return response.status === 204 ? null : response.json();
+}
+
+const STATUS_CLASS = {
+  online: 'ok', succeeded: 'ok',
+  running: 'run', assigned: 'run', ready: 'run',
+  draining: 'warn', paused: 'warn', retrying: 'warn',
+  offline: 'bad', failed: 'bad', blocked: 'bad',
+  pending: 'idle', draft: 'idle', cancelled: 'idle', disabled: 'idle',
+};
+const cls = (status) => STATUS_CLASS[status] || 'idle';
+const badge = (status) => `<span class="${cls(status)}"><i class="dot bg-${cls(status)}"></i>${status}</span>`;
+const escape = (value) => String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+
+function ago(iso) {
+  if (!iso) return 'never';
+  const seconds = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+  if (seconds < 60) return seconds + 's ago';
+  if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+  return Math.floor(seconds / 86400) + 'd ago';
+}
+function meter(percent) {
+  return `<span class="row"><span class="meter" style="flex:1"><i style="width:${percent}%"></i></span>
+          <span class="mono">${String(percent).padStart(3)}%</span></span>`;
+}
+
+function renderStats(overview) {
+  document.getElementById('stats').innerHTML = [
+    ['Machines online', `${overview.machines.online}<span class="hint"> / ${overview.machines.total}</span>`],
+    ['Free slots', `${overview.machines.freeSlots}<span class="hint"> / ${overview.machines.capacity}</span>`],
+    ['Tools running', overview.tools.running],
+    ['Tasks running', (overview.tasks.running || 0) + (overview.tasks.assigned || 0)],
+    ['Queued', (overview.tasks.ready || 0) + (overview.tasks.pending || 0)],
+    ['Failed', overview.tasks.failed || 0],
+    ['Billed', overview.earnings.toFixed(3)],
+  ].map(([label, value]) => `<div class="stat"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('');
+}
+
+function renderMachines(machines) {
+  const head = `<thead><tr><th>Machine</th><th>Status</th><th>Slots</th><th>Tags</th><th>Hardware</th>
+                <th>Reliability</th><th>Price/min</th><th>Heartbeat</th><th></th></tr></thead>`;
+  const rows = machines.length === 0
+    ? `<tr><td colspan="9" class="empty">No machines yet. Share a join code: <code>toolforge invite create</code></td></tr>`
+    : machines.map((machine) => `<tr>
+        <td><b>${escape(machine.name)}</b><br><span class="hint mono">${machine.id}</span></td>
+        <td>${badge(machine.status)}</td>
+        <td class="mono">${machine.activeTasks}/${machine.maxConcurrency}</td>
+        <td>${escape(machine.tags.join(', ')) || '<span class="hint">—</span>'}</td>
+        <td class="hint">${escape(machine.capabilities?.os || '?')} · ${machine.capabilities?.cpus ?? '?'} cpu · ${machine.capabilities?.memGb ?? '?'} GB</td>
+        <td class="mono">${machine.reliability}</td>
+        <td class="mono">${machine.rental.pricePerMinute}</td>
+        <td class="hint">${ago(machine.lastHeartbeatAt)}</td>
+        <td><button data-machine="${machine.id}" data-action="${machine.status === 'draining' ? 'online' : 'draining'}">
+          ${machine.status === 'draining' ? 'Resume' : 'Drain'}</button></td>
+      </tr>`).join('');
+  document.getElementById('machines').innerHTML = head + `<tbody>${rows}</tbody>`;
+}
+
+function renderTools(tools) {
+  const container = document.getElementById('tools');
+  if (tools.length === 0) {
+    container.innerHTML = `<div class="empty">No tools yet. Apply one with <code>toolforge tool apply -f spec.json</code></div>`;
+    return;
+  }
+  container.innerHTML = tools.map((tool) => `
+    <details data-tool="${tool.key}" ${state.open.has(tool.key) ? 'open' : ''}>
+      <summary>
+        <span class="row">
+          <span style="flex:1">${escape(tool.name)} <span class="hint mono">${escape(tool.key)}</span></span>
+          ${badge(tool.status)}
+          <span class="hint">${tool.dispatch.mode}</span>
+          <span style="width:160px">${meter(tool.progress.percent)}</span>
+        </span>
+      </summary>
+      <div class="detail" data-detail="${tool.key}"><div class="empty">Loading…</div></div>
+    </details>`).join('');
+}
+
+async function renderToolDetail(key) {
+  const host = document.querySelector(`[data-detail="${CSS.escape(key)}"]`);
+  if (!host) return;
+  const tool = await api('/api/tools/' + encodeURIComponent(key));
+  host.innerHTML = `
+    <div class="row" style="padding: 10px 14px; flex-wrap: wrap; gap: 8px;">
+      <button data-tool-action="start" data-key="${tool.key}">Start</button>
+      <button data-tool-action="pause" data-key="${tool.key}">Pause</button>
+      <button data-tool-action="resume" data-key="${tool.key}">Resume</button>
+      <button data-tool-action="retry-failed" data-key="${tool.key}">Retry failed</button>
+      <button data-tool-action="cancel" data-key="${tool.key}">Cancel</button>
+      <span class="spacer" style="flex:1"></span>
+      <label class="hint">dispatch
+        <select data-mode="${tool.key}">
+          ${['auto', 'pinned', 'hybrid'].map((mode) =>
+            `<option value="${mode}" ${tool.dispatch.mode === mode ? 'selected' : ''}>${mode}</option>`).join('')}
+        </select>
+      </label>
+    </div>
+    ${tool.teams.map((team) => `
+      <div class="team">
+        <h3>${escape(team.name)} · ${escape(team.role)} · ${team.progress.done}/${team.progress.total} done</h3>
+        <div class="scroll"><table>
+          <thead><tr><th>Task</th><th>Status</th><th>Try</th><th>Machine</th><th>Took</th><th></th></tr></thead>
+          <tbody>${team.tasks.map((task) => `<tr>
+            <td>${escape(task.name)}<br><span class="hint mono">${escape(task.ref)}</span></td>
+            <td>${badge(task.status)}</td>
+            <td class="mono">${task.attempt}/${task.maxAttempts}</td>
+            <td class="hint">${escape(task.assignment?.machineName || task.result?.machineName || '—')}</td>
+            <td class="mono hint">${task.result?.durationMs ? Math.round(task.result.durationMs / 100) / 10 + 's' : '—'}</td>
+            <td><button data-task-retry="${task.id}">Retry</button></td>
+          </tr>`).join('')}</tbody>
+        </table></div>
+      </div>`).join('')}`;
+}
+
+async function refresh() {
+  const [overview, machines, tools] = await Promise.all([
+    api('/api/overview'), api('/api/machines'), api('/api/tools'),
+  ]);
+  state.tools = tools;
+  renderStats(overview);
+  renderMachines(machines);
+  renderTools(tools);
+  for (const key of state.open) renderToolDetail(key).catch(() => {});
+  document.getElementById('clock').textContent = 'updated ' + new Date().toLocaleTimeString();
+}
+
+function describe(event) {
+  const data = event.data || {};
+  return [data.ref, data.name, data.key, data.machineName && 'on ' + data.machineName,
+    data.reason && '(' + data.reason + ')', data.exitCode != null && 'exit ' + data.exitCode]
+    .filter(Boolean).map(escape).join(' ');
+}
+
+function pushEvent(event) {
+  if (event.type === 'hello') return;
+  const feed = document.getElementById('feed');
+  const row = document.createElement('div');
+  const tone = event.type.endsWith('.failed') || event.type.endsWith('.offline') || event.type.endsWith('.blocked') ? 'bad'
+    : event.type.endsWith('.succeeded') || event.type.endsWith('.online') ? 'ok'
+    : event.type.endsWith('.rescheduled') || event.type.endsWith('.retrying') ? 'warn' : 'run';
+  row.innerHTML = `<time>${escape((event.ts || '').slice(11, 19))}</time><b class="${tone}">${escape(event.type)}</b><span>${describe(event)}</span>`;
+  feed.prepend(row);
+  while (feed.children.length > 200) feed.lastChild.remove();
+}
+
+function connectStream() {
+  // EventSource cannot send an Authorization header, so the stream is read
+  // manually and re-opened if the hub restarts.
+  const controller = new AbortController();
+  fetch('/api/events', { headers: { authorization: 'Bearer ' + state.token }, signal: controller.signal })
+    .then(async (response) => {
+      if (!response.ok || !response.body) throw new Error('stream refused');
+      document.getElementById('conn').textContent = '· live';
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let pending = null;
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let split;
+        while ((split = buffer.indexOf('\n\n')) !== -1) {
+          const frame = buffer.slice(0, split);
+          buffer = buffer.slice(split + 2);
+          const line = frame.split('\n').find((entry) => entry.startsWith('data: '));
+          if (!line) continue;
+          const event = JSON.parse(line.slice(6));
+          pushEvent(event);
+          // Coalesce bursts: one refresh per quiet moment, not one per event.
+          clearTimeout(pending);
+          pending = setTimeout(() => refresh().catch(() => {}), 250);
+        }
+      }
+      throw new Error('stream ended');
+    })
+    .catch(() => {
+      document.getElementById('conn').textContent = '· reconnecting';
+      setTimeout(connectStream, 2000);
+    });
+  return controller;
+}
+
+document.addEventListener('click', async (event) => {
+  const machineButton = event.target.closest('[data-machine]');
+  if (machineButton) {
+    await api('/api/machines/' + machineButton.dataset.machine, {
+      method: 'PATCH', body: JSON.stringify({ status: machineButton.dataset.action }),
+    });
+    return refresh();
+  }
+  const toolButton = event.target.closest('[data-tool-action]');
+  if (toolButton) {
+    await api(`/api/tools/${encodeURIComponent(toolButton.dataset.key)}/${toolButton.dataset.action}`, {
+      method: 'POST', body: '{}',
+    });
+    return refresh();
+  }
+  const retryButton = event.target.closest('[data-task-retry]');
+  if (retryButton) {
+    await api('/api/tasks/' + retryButton.dataset.taskRetry + '/retry', { method: 'POST', body: '{}' });
+    return refresh();
+  }
+});
+
+document.addEventListener('toggle', (event) => {
+  const details = event.target.closest('[data-tool]');
+  if (!details) return;
+  const key = details.dataset.tool;
+  if (details.open) {
+    state.open.add(key);
+    renderToolDetail(key).catch(() => {});
+  } else {
+    state.open.delete(key);
+  }
+}, true);
+
+document.addEventListener('change', async (event) => {
+  const select = event.target.closest('[data-mode]');
+  if (!select) return;
+  await api('/api/tools/' + encodeURIComponent(select.dataset.mode), {
+    method: 'PATCH', body: JSON.stringify({ mode: select.value }),
+  });
+  refresh();
+});
+
+document.getElementById('token-save').addEventListener('click', async () => {
+  const token = document.getElementById('token-input').value.trim();
+  if (!token) return;
+  state.token = token;
+  try {
+    await api('/api/overview');
+    writeToken(token);
+    start();
+  } catch (error) {
+    document.getElementById('gate-error').textContent =
+      error.status === 401 ? 'That token was rejected.' : error.message;
+  }
+});
+document.getElementById('token-input').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') document.getElementById('token-save').click();
+});
+document.getElementById('logout').addEventListener('click', () => {
+  writeToken(null);
+  location.reload();
+});
+
+function start() {
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+  refresh().catch(() => {});
+  connectStream();
+  setInterval(() => refresh().catch(() => {}), 10000);
+}
+
+(async function boot() {
+  state.token = readToken();
+  if (!state.token) {
+    document.getElementById('gate').hidden = false;
+    return;
+  }
+  try {
+    await api('/api/overview');
+    start();
+  } catch {
+    document.getElementById('gate').hidden = false;
+  }
+})();
+</script>
+</body>
+</html>

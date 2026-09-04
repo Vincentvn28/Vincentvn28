@@ -42,6 +42,14 @@
 
 [**Install on VS Code**](https://marketplace.visualstudio.com/items?itemName=Vincentvn28.claude-session-sync) · [**Install on Antigravity / Cursor / Windsurf**](https://open-vsx.org/extension/Vincentvn28/claude-session-sync) · [**Source**](https://github.com/Vincentvn28/claude-session-sync)
 
+#### [toolforge](toolforge/) &nbsp;·&nbsp; *in this repo*
+
+> Rent your computer out as a build worker, and build tools on a pool of those machines — one orchestrator, many apps, each split into teams of micro-tasks.
+
+Pin a tool to fixed machines, or let it run anywhere in the pool: when a machine drops out mid-build, its task is leased to another one automatically. Zero dependencies, plain Node.js — hub, agent and CLI in one package.
+
+[**Quickstart**](toolforge/README.md) · [**Tiếng Việt**](toolforge/README.vi.md) · [**Architecture**](toolforge/docs/ARCHITECTURE.md)
+
 ---
 
 ### 📊 GitHub stats

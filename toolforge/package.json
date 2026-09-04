@@ -1,0 +1,32 @@
+{
+  "name": "toolforge",
+  "version": "0.1.0",
+  "description": "Rent out your machine as a build worker, and orchestrate teams of machines that build tools out of micro-tasks.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "bin": {
+    "toolforge": "./bin/toolforge.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "public",
+    "examples",
+    "README.md"
+  ],
+  "scripts": {
+    "hub": "node bin/toolforge.js hub start",
+    "agent": "node bin/toolforge.js agent start",
+    "test": "node --test --test-timeout=100000 \"test/*.test.js\""
+  },
+  "keywords": [
+    "distributed",
+    "build-farm",
+    "agents",
+    "orchestration",
+    "machine-rental"
+  ]
+}

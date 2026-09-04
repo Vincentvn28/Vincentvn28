@@ -1,0 +1,75 @@
+{
+  "key": "invoice-app",
+  "name": "Invoice App",
+  "description": "One app, four teams, many small tasks — split so a pool of machines can build it in parallel.",
+  "repo": "https://github.com/example/invoice-app",
+  "concurrency": 12,
+  "dispatch": {
+    "mode": "hybrid",
+    "machines": [],
+    "requires": { "tools": ["node", "git"] },
+    "failoverToPool": true
+  },
+  "env": { "CI": "1", "NODE_ENV": "production" },
+  "teams": [
+    {
+      "key": "scaffold",
+      "name": "Scaffolding",
+      "role": "setup",
+      "concurrency": 1,
+      "tasks": [
+        { "key": "workspace", "name": "Create the workspace", "run": "mkdir -p src test dist && node -e \"require('fs').writeFileSync('package.json', JSON.stringify({name:'invoice-app',version:'0.0.0',type:'module'},null,2))\"" }
+      ]
+    },
+    {
+      "key": "backend",
+      "name": "Backend team",
+      "role": "backend",
+      "description": "Each endpoint is its own micro-task so several machines write them at once.",
+      "concurrency": 4,
+      "tasks": [
+        { "key": "model", "name": "Invoice model", "run": "echo 'export const invoice = {};' > src/model.js", "dependsOn": ["scaffold:workspace"] },
+        { "key": "create-endpoint", "name": "POST /invoices", "run": "echo 'export const create = () => null;' > src/create.js", "dependsOn": ["model"] },
+        { "key": "list-endpoint", "name": "GET /invoices", "run": "echo 'export const list = () => [];' > src/list.js", "dependsOn": ["model"] },
+        { "key": "pdf-endpoint", "name": "GET /invoices/:id.pdf", "run": "echo 'export const pdf = () => null;' > src/pdf.js", "dependsOn": ["model"] }
+      ]
+    },
+    {
+      "key": "frontend",
+      "name": "Frontend team",
+      "role": "frontend",
+      "concurrency": 3,
+      "tasks": [
+        { "key": "shell", "name": "App shell", "run": "echo '<!doctype html><title>Invoices</title>' > dist/index.html", "dependsOn": ["scaffold:workspace"] },
+        { "key": "list-view", "name": "Invoice list view", "run": "echo 'export const ListView = () => null;' > src/list-view.js", "dependsOn": ["shell", "backend:list-endpoint"] },
+        { "key": "detail-view", "name": "Invoice detail view", "run": "echo 'export const DetailView = () => null;' > src/detail-view.js", "dependsOn": ["shell", "backend:create-endpoint"] }
+      ]
+    },
+    {
+      "key": "qa",
+      "name": "QA team",
+      "role": "qa",
+      "concurrency": 4,
+      "tasks": [
+        { "key": "lint", "name": "Lint everything", "run": "node --check src/model.js && node --check src/create.js", "dependsOn": ["backend:create-endpoint", "backend:list-endpoint"], "timeoutMs": 120000 },
+        { "key": "unit", "name": "Unit tests", "run": "echo 'no tests yet' && exit 0", "dependsOn": ["backend:pdf-endpoint"], "maxAttempts": 2 },
+        { "key": "smoke", "name": "Smoke test the UI", "run": "test -f dist/index.html", "dependsOn": ["frontend:list-view", "frontend:detail-view"] }
+      ]
+    },
+    {
+      "key": "release",
+      "name": "Release team",
+      "role": "release",
+      "concurrency": 1,
+      "tasks": [
+        {
+          "key": "bundle",
+          "name": "Bundle",
+          "run": "tar -czf dist/invoice-app.tgz src dist/index.html",
+          "dependsOn": ["qa:lint", "qa:unit", "qa:smoke"],
+          "requires": { "minMemGb": 2 }
+        }
+      ]
+    }
+  ]
+}

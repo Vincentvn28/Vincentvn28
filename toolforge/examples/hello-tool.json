@@ -1,0 +1,27 @@
+{
+  "key": "hello-tool",
+  "name": "Hello Tool",
+  "description": "Smallest possible tool: two teams, three micro-tasks.",
+  "concurrency": 4,
+  "dispatch": { "mode": "auto" },
+  "teams": [
+    {
+      "key": "build",
+      "name": "Build",
+      "role": "backend",
+      "concurrency": 2,
+      "tasks": [
+        { "key": "scaffold", "name": "Create the workspace", "run": "mkdir -p out && echo hello > out/greeting.txt" },
+        { "key": "package", "name": "Package it", "run": "cat out/greeting.txt > out/bundle.txt", "dependsOn": ["scaffold"] }
+      ]
+    },
+    {
+      "key": "qa",
+      "name": "QA",
+      "role": "qa",
+      "tasks": [
+        { "key": "verify", "name": "Check the bundle", "run": "grep -q hello out/bundle.txt", "dependsOn": ["build:package"] }
+      ]
+    }
+  ]
+}
